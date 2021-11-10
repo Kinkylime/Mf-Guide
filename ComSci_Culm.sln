@@ -1,25 +1,3088 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.1684
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mf_Guide", "Mf_Guide\Mf_Guide.csproj", "{0FB7CE90-7720-4A02-A453-3B499CBF543E}"
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0FB7CE90-7720-4A02-A453-3B499CBF543E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0FB7CE90-7720-4A02-A453-3B499CBF543E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0FB7CE90-7720-4A02-A453-3B499CBF543E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0FB7CE90-7720-4A02-A453-3B499CBF543E}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {6E0E67CD-B3C4-47D3-8BE7-71BC180ABDF5}
-	EndGlobalSection
-EndGlobal
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+
+namespace Mf_Guide
+{
+    public partial class frmMain : Form
+    {
+        private bool isCollapsed;
+        public frmMain()
+        {
+            InitializeComponent();
+        }
+       //vvv This is the code to the character select drop down menu vvv
+        #region Drop down 
+        //Credit to: https://www.youtube.com/watch?v=CQBl1l27dL0&ab_channel=C%23UiAcademy for showing me how to make a drop down
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (isCollapsed)
+            {
+                charPanel.Height += 10;
+                if (charPanel.Size == charPanel.MaximumSize)
+                {
+                    timer1.Stop();
+                    isCollapsed = false;
+                }
+            }
+            else
+            {
+                charPanel.Height -= 10;
+                if (charPanel.Size == charPanel.MinimumSize)
+                {
+                    timer1.Stop();
+                    isCollapsed = true;
+                }
+            }
+        }
+        private void btnCharSelect_Click(object sender, EventArgs e)
+        {
+            timer1.Start();
+        }
+        #endregion
+        //vvv This code creates events based on the selection from the drop down menu vvv
+        #region Primary Class selection
+            //Sets classSelected as an empty string
+        string classSelected = "";
+        //When the necromancer is selected from the menu
+        private void btnNecro_Click(object sender, EventArgs e)
+        {
+            classSelected = "Necromancer"; //Fill the once empy classSelected string
+            lblSelectedChar.Text = ("Current Class: " + classSelected); //Print the following onto a label
+            btnSubClassCheck.Visible = true; //Makes selected element visible
+            lblSelectedSubClass.Text = "Enter your Necro sub class (Summoner, BoneSpear, PoisonNova):";
+            lblSelectedSubClass.Visible = true; //Makes selected element visible
+            txtSelectedSubClass.Visible = true;//Makes selected element visible
+        }
+        //The rest of the code below (in this region) is the same as above ^^^
+        private void btnPally_Click(object sender, EventArgs e)
+        {
+            classSelected = "Paladin";
+            lblSelectedChar.Text = ("Current Class: " + classSelected);
+            btnSubClassCheck.Visible = true;
+            lblSelectedSubClass.Text = "Enter your Pally sub class (Hammerdin, Zeal, Smiter):";
+            lblSelectedSubClass.Visible = true;
+            txtSelectedSubClass.Visible = true;
+        }
+
+        private void btnSorc_Click(object sender, EventArgs e)
+        {
+            classSelected = "Sorceress";
+            lblSelectedChar.Text = ("Current Class: " + classSelected);
+            btnSubClassCheck.Visible = true;
+            lblSelectedSubClass.Text = "Enter your Sorc sub class (Fire, Ice, Lightning):";
+            lblSelectedSubClass.Visible = true;
+            txtSelectedSubClass.Visible = true;
+        }
+
+        private void btnBarb_Click(object sender, EventArgs e)
+        {
+            classSelected = "Barbarian";
+            lblSelectedChar.Text = ("Current Class: " + classSelected);
+            btnSubClassCheck.Visible = true;
+            lblSelectedSubClass.Text = "Enter your Barb sub class (WhirlWind, FindItem):";
+            lblSelectedSubClass.Visible = true;
+            txtSelectedSubClass.Visible = true;
+        }
+
+        private void btnSin_Click(object sender, EventArgs e)
+        {
+            classSelected = "Assassin";
+            lblSelectedChar.Text = ("Current Class: " + classSelected);
+            btnSubClassCheck.Visible = true;
+            lblSelectedSubClass.Text = "Enter your Assassin sub class (TrapSin, MartialArts):";
+            lblSelectedSubClass.Visible = true;
+            txtSelectedSubClass.Visible = true;
+        }
+
+        private void btnZon_Click(object sender, EventArgs e)
+        {
+            classSelected = "Amazon";
+            lblSelectedChar.Text = ("Current Class: " + classSelected);
+            btnSubClassCheck.Visible = true;
+            lblSelectedSubClass.Text = "Enter your Amazon sub class (FuryJavazon, PlaugeJavazon, Bowazon):";
+            lblSelectedSubClass.Visible = true;
+            txtSelectedSubClass.Visible = true;
+        }
+
+        private void btnDruid_Click(object sender, EventArgs e)
+        {
+            classSelected = "Druid";
+            lblSelectedChar.Text = ("Current Class: " + classSelected);
+            btnSubClassCheck.Visible = true;
+            lblSelectedSubClass.Text = "Enter your Druid sub class (Fissure, Tornado, ShapeShifter):";
+            lblSelectedSubClass.Visible = true;
+            txtSelectedSubClass.Visible = true;
+        }
+        #endregion //for the Primary Class region
+        //vvv This code checks the subclass text box and checks for proper format then compares it to given classes
+        #region Sub Class selection
+        private void btnSubClassCheck_Click(object sender, EventArgs e)
+        {
+            #region Int Detection, Double Detection, Special Character Detection & Space Trimming
+            //Declaraing the characters in the text box to a string named "Input" for easy use
+            string Input = txtSelectedSubClass.Text;
+            //Credit to https://www.c-sharpcorner.com/blogs/how-to-use-inttryparse1 for this one line of code below
+            int intInput; bool intResultTryParse = int.TryParse(Input, out intInput); //This one is ^^ it is checking if "Input" is a integer 
+            double doubleInput; bool doubleResultTryParse = double.TryParse(Input, out doubleInput); //This one is checking if "Input" is in double
+            //If it is an int then it makes the bool true, and this says if the bool is true output warning message
+            if (intResultTryParse == true)
+            {
+                MessageBox.Show("Input Cannot be in integer format");
+            }
+            //Same as above but with double
+            else if (doubleResultTryParse == true)
+            {
+                MessageBox.Show("Input Cannot be in double format");
+            }
+            //Credit to https://kodify.net/csharp/strings/remove-whitespace/ for this one line of code below vvv which removes all spaces
+            string trimmed = String.Concat(txtSelectedSubClass.Text.Where(c => !Char.IsWhiteSpace(c)));
+            //Creates a string of special Character to check for
+            string specialChar = @"\|!#$%&/()=?»«@£§€{}.-;'<>_,";
+            //Turns each char inside the string to a varible named item and checks "trimmed" for it
+            foreach (var item in specialChar)
+            {
+                //if trimmed has one of the special characters throw an error
+                if (trimmed.Contains(item))
+                {
+                    MessageBox.Show("Cannot Contain: " + "|!#$%&/()=?»«@£§€{}.-;'<>_,");
+                }
+            }
+            #endregion
+            #region Sorc Sub Types
+            //Set up an array of the available options
+            string[] sorcTypes = { "FIRE", "ICE", "LIGHTNING" };
+            //for loop with sort through the input and compare it to the array elements if it matches and index it prints it
+            
+            for (int s = 0; s < sorcTypes.Length; s++)
+            {//for loop bracket
+                if (trimmed.ToUpper() == sorcTypes[s])
+                {
+                    //Prints the message Sub Class: followed by whatever is in index s
+                    lblSubSelected.Text = "Sub Class: " + sorcTypes[s];
+                    //Clears text box
+                    //Turns off the first lable and shows the next one that displays ur choice
+                    lblSelectedSubClass.Visible = false;
+                    lblSubSelected.Visible = true;
+                }
+            }//for loop end bracket
+            #endregion //For the Sorc Sub region
+            #region Necro Sub Types
+            //Set up an array of the available options
+            string[] necroTypes = { "SUMMONER", "BONESPEAR", "POISONNOVA" };
+            //for loop with sort through the input and compare it to the array elements if it matches and index it prints it
+            for (int s = 0; s < necroTypes.Length; s++)
+            {//for loop bracket
+                if (trimmed.ToUpper() == necroTypes[s])
+                {
+                    //Prints the message Sub Class: followed by whatever is in index s
+                    lblSubSelected.Text = "Sub Class: " + necroTypes[s];
+                    //Clears text box
+                    //Turns off the first lable and shows the next one that displays ur choice
+                    lblSelectedSubClass.Visible = false;
+                    lblSubSelected.Visible = true;
+                }
+            }
+            #endregion //For Necro sub class region
+            #region Pally Sub Types
+            //Set up an array of the available options
+            string[] pallyTypes = { "HAMMERDIN", "ZEAL", "SMITER" };
+            //for loop with sort through the input and compare it to the array elements if it matches and index it prints it
+            for (int s = 0; s < pallyTypes.Length; s++)
+            {//for loop bracket
+                if (trimmed.ToUpper() == pallyTypes[s])
+                {
+                    //Prints the message Sub Class: followed by whatever is in index s
+                    lblSubSelected.Text = "Sub Class: " + pallyTypes[s];
+                    //Clears text box
+                    //Turns off the first lable and shows the next one that displays ur choice
+                    lblSelectedSubClass.Visible = false;
+                    lblSubSelected.Visible = true;
+                }
+            }
+            #endregion //For Pally sub class region
+            #region Barb Sub Types
+            //Set up an array of the available options
+            string[] barbTypes = { "WHIRLWIND", "FINDITEM" };
+            //for loop with sort through the input and compare it to the array elements if it matches and index it prints it
+            for (int s = 0; s < barbTypes.Length; s++)
+            {//for loop bracket
+                if (trimmed.ToUpper() == barbTypes[s])
+                {
+                    //Prints the message Sub Class: followed by whatever is in index s
+                    lblSubSelected.Text = "Sub Class: " + barbTypes[s];
+                    //Clears text box
+                    //Turns off the first lable and shows the next one that displays ur choice
+                    lblSelectedSubClass.Visible = false;
+                    lblSubSelected.Visible = true;
+                }
+            }
+            #endregion //For Barb sub class region
+            #region Assassin Sub Types
+            //Set up an array of the available options
+            string[] sinTypes = { "TRAPSIN", "MARTIALARTS" };
+            //for loop with sort through the input and compare it to the array elements if it matches and index it prints it
+            for (int s = 0; s < sinTypes.Length; s++)
+            {//for loop bracket
+                if (trimmed.ToUpper() == sinTypes[s])
+                {
+                    //Prints the message Sub Class: followed by whatever is in index s
+                    lblSubSelected.Text = "Sub Class: " + sinTypes[s];
+                    //Clears text box
+                    //Turns off the first lable and shows the next one that displays ur choice
+                    lblSelectedSubClass.Visible = false;
+                    lblSubSelected.Visible = true;
+                }
+            }
+            #endregion //For Assassin sub class region
+            #region Amazon Sub Types
+            //Set up an array of the available options
+            string[] zonTypes = { "FURYJAVAZON", "PLAUGEJAVAZON", "BOWAZON" };
+            //for loop with sort through the input and compare it to the array elements if it matches and index it prints it
+            for (int s = 0; s < zonTypes.Length; s++)
+            {//for loop bracket
+                if (trimmed.ToUpper() == zonTypes[s])
+                {
+                    //Prints the message Sub Class: followed by whatever is in index s
+                    lblSubSelected.Text = "Sub Class: " + zonTypes[s];
+                    //Clears text box
+                    //Turns off the first lable and shows the next one that displays ur choice
+                    lblSelectedSubClass.Visible = false;
+                    lblSubSelected.Visible = true;
+                }
+            }
+            #endregion //For Amazon sub class region
+            #region Druid Sub Types
+            //Set up an array of the available options
+            string[] druidTypes = { "FISSURE", "TORNADO", "SHAPESHIFTER" };
+            //for loop with sort through the input and compare it to the array elements if it matches and index it prints it
+            for (int s = 0; s < druidTypes.Length; s++)
+            {//for loop bracket
+                if (trimmed.ToUpper() == druidTypes[s])
+                {
+                    //Prints the message Sub Class: followed by whatever is in index s
+                    lblSubSelected.Text = "Sub Class: " + druidTypes[s];
+                    //Clears text box
+                    //Turns off the first lable and shows the next one that displays ur choice
+                    lblSelectedSubClass.Visible = false;
+                    lblSubSelected.Visible = true;
+                }
+            }
+        
+            #endregion //For druid sub class region
+            //if the question has been answered continue the program
+            if (lblSubSelected.Visible == true)
+            {
+                //This is just turning hiddent elements visible 
+                lblLevel.Visible = true;
+                txtLevel.Visible = true;
+                btnLevel.Visible = true;
+            }
+
+    }//End the check sub class button click
+
+
+        #endregion //For the Sub Class region
+        //vvv This code checks the lvlInput text and sets up the next region
+        #region Player Level
+
+        private void btnLevel_Click(object sender, EventArgs e)
+        {
+            //This is turing off the option to enter the secondary program
+            btnGuide.Visible = false;
+            //Declaring the contents of the text box as a string
+            string levelInput = txtLevel.Text.ToUpper();
+            //Checks if the input can be parsed
+            bool tryLevelParse = int.TryParse(levelInput, out int levelSelection);
+            //if the input cannot be parsed it is a word and then is invalid
+            if (tryLevelParse != true)
+            {
+                MessageBox.Show("Invalid entry: must be in int format");
+            }
+            //If the player level is less than 1 or higher than 99 it is an invalid level
+            if(levelSelection <= 0 || levelSelection >= 100)
+            {
+                MessageBox.Show("Invald entry: level must be between 1-99");
+            }
+            //If the player level is less than 80 show message and dont continue program
+            else if(levelSelection <80)
+            {
+                MessageBox.Show("You should focus on leveling to 80 before magic finding!!!");
+            }
+            //If the player level is greater than 80
+            else if (levelSelection >= 80)
+            {
+                //Show item check boxes and print message
+                MessageBox.Show("Its prime time to magic find!");
+                lblCurrentLvl.Visible = true;
+                lblCurrentLvl.Text = "Selected Player Level: " + levelSelection;
+                //This is making the next section of the program visible
+                lblItems.Visible = true;
+                tableItems.Visible = true;
+                checkBoxRunes.Visible = true;
+                checkBoxUniques.Visible = true;
+                btnCheckBox.Visible = true;
+                txtSelectedSubClass.ReadOnly = true;
+            }
+
+            
+            
+        }//ending bracket for btnLevel
+        #endregion
+        //vvv This code checks which check boxes were checked to determine what labels and text boxes to make visible
+        #region Check Box Check
+        private void btnCheckBox_Click(object sender, EventArgs e)
+        {
+            //If the both check boxes are checked the rune section becomes visible
+            if (checkBoxRunes.Checked && checkBoxUniques.Checked)
+            {
+                lblRuneLvl.Visible = true;
+                txtRuneLvl.Visible = true;
+                lblUniquesLvl.Visible = true;
+                txtUniquesLvl.Visible = true;
+                btnBothItems.Visible = true;
+            }
+            //If the Runes check box is checked the rune section becomes visible
+         else if (checkBoxRunes.Checked)
+            {
+                lblRuneLvl.Visible = true;
+                txtRuneLvl.Visible = true;
+                btnRuneLvl.Visible = true;
+            }
+            //If the Uniques check box is checked the rune section becomes visible
+           else if (checkBoxUniques.Checked)
+            {
+                lblUniquesLvl.Visible = true;
+                txtUniquesLvl.Visible = true;
+                btnUniquesLvl.Visible = true;
+            }
+           
+        }
+        #endregion
+        //vvv Checks a series of possilbe inputs for txtRuneLvl and outputs accordingly
+        #region Rune Check
+        private void btnRuneLvl_Click(object sender, EventArgs e)
+        {
+            //Makes the file.io buttons visible
+            if (btnRuneLvl.Enabled == true)
+            {
+                btnCreateFile.Visible = true;
+                btnPrint.Visible = true;
+                lblFile.Visible = true;
+            }
+            //Declaring the contents of the text box as a string
+            string runeLevelInput = txtRuneLvl.Text.ToUpper();
+            //Checks if the input can be parsed
+            bool tryRuneLevelParse = int.TryParse(runeLevelInput, out int runeLevel);
+            //If the input cannot be parsed it is a word so output invalid format message
+            
+            //From here to line 422 is basic number checks with a one line output message
+            
+            //If the input cannot be parsed it is not in proper format
+            if (tryRuneLevelParse != true)
+            {
+                MessageBox.Show("Invalid entry: must be in integer format");
+            }
+            //Checks to makes sure that the input isnt <1
+            if (runeLevel < 1)
+            {
+                MessageBox.Show("Invalid Entry: Runes must be at least level 1");
+            }
+            //Checks to make sure the input cannot be over 69 (the maximum rune level
+            if (runeLevel > 69)
+            {
+                MessageBox.Show("Invalid Entry: Runes cannot be higher than level 69");
+            }
+            
+            else if (runeLevel > 1 && runeLevel < 20)
+            {
+                MessageBox.Show("Runes with an rune level of 1-20 can be farmed at act 1 countess");
+            }
+
+            else if (runeLevel > 21 && runeLevel < 30)
+            {
+                MessageBox.Show("Runes with an rune level of 21-30 can be dropped in acts 1-3 nightmare");
+            }
+
+          else if (runeLevel > 30 && runeLevel < 44)
+            {
+                MessageBox.Show("Runes with an rune level of 30-43 can be dropped  act4 nightmare and above");
+            }
+
+          else if (runeLevel > 43 && runeLevel <= 50)
+            {
+                txtMFSpots.Text = "Farm Hell Countess";
+            }
+
+            //If the runeLevel is >= 51 and the class selected is Sorceress (has teleport)
+            else  if (runeLevel >= 51 && lblSelectedChar.Text == "Current Class: Sorceress")
+            {
+                //Creates a string with lower kurast in the farming spots (it requires teleport to farm)
+                string[] sorcHighRuneSpots = {"COWS", "LOWER_KURAST","SHENK"};
+                //Makes all the next elements visible
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                //The rest of the code in this block is printing all the entered information as well as the farming guide to a multiline text box
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Rune level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < sorcHighRuneSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(sorcHighRuneSpots[u] + " " + Environment.NewLine);
+                }
+                //Makes the text box read only
+                txtMFSpots.ReadOnly = true;
+            }
+            //This code is the exact same as above except it checks for any class other than sorc and there is no lower kurast since other classes cannot teleport without enigma
+            else if (runeLevel >= 51 && lblSelectedChar.Text != "Current Class: Sorceress")
+            {
+                string[] sorcHighRuneSpots = { "COWS", "SHENK" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Rune level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < sorcHighRuneSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(sorcHighRuneSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+
+        }
+        #endregion
+        //vvv Checks a series of possible inputs for txtUniquesLvl and outputs accordingly
+        #region Uniques Check
+        private void btnUniquesLvl_Click(object sender, EventArgs e)
+        {
+            //This is the same code from the first region (int detection, etc) that creates a trimmed string of txtSelectedSubClss
+            string trimmed = String.Concat(txtSelectedSubClass.Text.Where(c => !Char.IsWhiteSpace(c)));
+            if (btnUniquesLvl.Enabled == true)
+            {
+                //Like the above section this just makes the file.io buttons visible
+                btnCreateFile.Visible = true;
+                btnPrint.Visible = true;
+                lblFile.Visible = true;
+            }
+            //Declaring the contents of the text box as a string
+            string uniquesLevelInput = txtUniquesLvl.Text.ToUpper();
+            //Checks if the input can be parsed
+            bool tryUniquesLevelParse = int.TryParse(uniquesLevelInput, out int uniquesLevel);
+            //If the input cannot be parsed it is a word so output invalid format message
+            if (tryUniquesLevelParse != true)
+            {
+                MessageBox.Show("Invalid entry: must be in intger format");
+            }
+            //From here to line 516 it is checking for numbers and outputting short responses according to the input
+            if (uniquesLevel < 0)
+            {
+                MessageBox.Show("Invalid: Item level must be > 0");
+            }
+            if(uniquesLevel > 85)
+            {
+                MessageBox.Show("Invalid: Item level must be 85 or lower");
+            }
+            else if (uniquesLevel > 0 && uniquesLevel < 36)
+            {
+                MessageBox.Show("Items with an item level of 1-35 can drop anywhere in normal mode");
+            }
+
+            else if (uniquesLevel >= 36 && uniquesLevel <= 66)
+            {
+                MessageBox.Show("Items with an item level of 36-67 can drop anywhere in nightmare mode");
+            }
+
+            else if (uniquesLevel > 67 && uniquesLevel < 75)
+            {
+                MessageBox.Show("Items with an item level of 68-74 can drop anywhere in hell mode");
+            }
+            //All of the code in these regions is copy and pastes from Fire Sorc MF and just modified slightly 
+            #region Fire sorc mf
+            //This first checks to makes sure the item level is between 75 and 85 then checkes "trimmed" for the subclass
+            //To upper is used so the user and butcher the capitalization as much as they'd like 
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "FIRE")
+            {
+                //Makes sure the text box is clear
+                txtMFSpots.Text = "";
+                //Declares an array of the possible farm spots for the class
+                string[] FireMFSpots = {"COUNTESS", "MAUSOLEUM", "COWS", "ANDARIEL", "ANCIENT_TUNNELS", "MAGGOT_LAIR", "ARCANE_SANCTUARY", "MEPHISTO", "PINDLESKIN", "NIHLATHAK" };
+                //Locks all the class buttons 
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                //Makes needed elements visible
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                //All of the appendText is used to write all of the entered info into a multiline text box along with the farm spots
+                txtMFSpots.AppendText (lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText (lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText (lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText ("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                //This runs through the array and prints it
+                for (int u = 0; u < FireMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(FireMFSpots[u] + " " + Environment.NewLine);
+                }
+                //Makes the text box read only so the user cannot tamper with it
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for fire sorc mf
+            #region Ice sorc mf
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "ICE")
+            {
+                string[] IceMFSpots = { "MAUSOLEUM", "COWS", "ANCIENT_TUNNELS","MEPHISTO", "PINDLESKIN","NIHLATHAK" };
+                txtMFSpots.Text = "";
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < IceMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(IceMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for ice sorc mf
+            #region Lightning sorc mf
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "LIGHTNING")
+            {
+                txtMFSpots.Text = "";
+                string[] LightMFSpots = { "THE_PIT", "THE_HOLE", "COUNTESS", "MAUSOLEUM", "COWS", "ANDARIEL", "ANCIENT_TUNNELS", "MAGGOT_LAIR", "ARCANE_SANCTUARY", "TRAVINCAL", "MEPHISTO", "CHAOS_SANCTUARY", "FRIGID_HIGHLANDS", "PINDLESKIN", "BAAL_RUNS", "NIHLATHAK" };
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                MessageBox.Show("This is assuming that you have an ininifty runeword on your merc, if you do not it is not worth farming any place other than cows");
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < LightMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(LightMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for lightning sorc mf
+            #region Summon and Bonespear necro
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "SUMMONER" || trimmed.ToUpper() == "BONESPEAR")
+            {
+                txtMFSpots.Text = "";
+                string[] sumSpearMFSpots = { "THE_PIT", "THE_HOLE", "MAUSOLEUM", "COWS", "ANCIENT_TUNNELS",  "TRAVINCAL", "CHAOS_SANCTUARY", "FRIGID_HIGHLANDS", "PINDLESKIN", "BAAL_RUNS"};
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < sumSpearMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(sumSpearMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for sumSpear necro mf
+            #region PoisonNova necro
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "POISONNOVA")
+            {
+                txtMFSpots.Text = "";
+                string[] novaMFSpots = { "THE_PIT", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS"};
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < novaMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(novaMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for Poison Nova necro mf
+            #region Zeal pally
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "ZEAL")
+            {
+                txtMFSpots.Text = "";
+                string[] zealMFSpots = { "THE_PIT", "MAUSOLEUM", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS", "BAAL_RUNS", "CHAOS_SANCTUARY" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < zealMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(zealMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for zeal pally mf
+            #region Hammerdin mf
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "HAMMERDIN")
+            {
+                string[] hamMFSpots = { "THE_PIT", "THE_HOLE", "COUNTESS", "MAUSOLEUM", "COWS", "ANDARIEL", "ANCIENT_TUNNELS", "MAGGOT_LAIR", "ARCANE_SANCTUARY", "TRAVINCAL", "MEPHISTO", "CHAOS_SANCTUARY", "FRIGID_HIGHLANDS", "PINDLESKIN", "BAAL_RUNS", "NIHLATHAK" };
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                MessageBox.Show("This is assuming that you have an enigma chestplate, if you do not why the hell are you playing hammerdin? Go farm with a sorc or something until your not broke :'(");
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < hamMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(hamMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion //for hammerdin region
+            #region Smiter pally
+            
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "SMITER")
+            {
+                txtMFSpots.Text = "";
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.Text = "What in Gods name are you doing trying to MF with a smiter???";
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for Smiter pally mf
+            #region BaeBlade
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "WHIRLWIND")
+            {
+                txtMFSpots.Text = "";
+                string[] wwMFSpots = { "THE_PIT", "MAUSOLEUM", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS", "BAAL_RUNS", "CHAOS_SANCTUARY" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < wwMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(wwMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for my favourite child hood toy
+            #region Find Item
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "FINDITEM")
+            {
+                txtMFSpots.Text = "";
+                string[] findItemMFSpots = { "TRAVINCAL" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < findItemMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(findItemMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for Find Item Barb
+            #region TrapSin
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "TRAPSIN")
+            {
+                txtMFSpots.Text = "";
+                string[] trapMFSpots = { "THE_PIT", "THE_HOLE", "COWS", "ARCANE_SANCTUARY", "FRIGID_HIGHLANDS", "PINDLESKIN"};
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < trapMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(trapMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for trap sin
+            #region Martial Arts
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "MARTIALARTS")
+            {
+                txtMFSpots.Text = "";
+
+                string[] kickMFSpots = { "THE_PIT", "MAUSOLEUM", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS", "BAAL_RUNS", "CHAOS_SANCTUARY" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < kickMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(kickMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for zeal pally mf
+            #region Fury Javazon
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "FURYJAVAZON")
+            {
+                txtMFSpots.Text = "";
+                string[] LightMFSpots = {"COWS","ARCANE_SANCTUARY","FRIGID_HIGHLANDS", "PINDLESKIN", "BAAL_RUNS"};
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < LightMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(LightMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for lightning javazon
+            #region Plauge Javazon
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "PLAUGEJAVAZON")
+            {
+                txtMFSpots.Text = "";
+                string[] pjavMFSpots = { "THE_PIT", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < pjavMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(pjavMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for PlaugeJavazon
+            #region Bowazon
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "BOWAZON")
+            {
+                txtMFSpots.Text = "";
+                string[] bowMFSpots = { "THE_PIT", "MAUSOLEUM", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS", "BAAL_RUNS", "CHAOS_SANCTUARY" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < bowMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(bowMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for bowazon
+            #region Tornado
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "TORNADO")
+            {
+                txtMFSpots.Text = "";
+                string[] sharkMFSpots = { "THE_PIT", "MAUSOLEUM", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS", "BAAL_RUNS", "CHAOS_SANCTUARY" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < sharkMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(sharkMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for sharknado
+            #region Rawr x3
+            //Funny furry jokes for shapeshifter man
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "SHAPESHIFTER")
+            {
+                txtMFSpots.Text = "";
+                string[] furryMFSpots = { "THE_PIT", "MAUSOLEUM", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS", "BAAL_RUNS", "CHAOS_SANCTUARY" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < furryMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(furryMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for SonicFox
+            #region Fissure
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "FISSURE")
+            {
+                txtMFSpots.Text = "";
+                string[] fissureMFSpots = {"MAUSOLEUM", "COWS", "ANDARIEL", "ANCIENT_TUNNELS", "MAGGOT_LAIR", "ARCANE_SANCTUARY", "PINDLESKIN"};
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < fissureMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(fissureMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for fissure druid
+
+
+        }//For the unique button
+        
+
+        #endregion
+       //vvv This entire region is just RuneCheck and UniquesCheck together so im not commenting it at all
+        #region Both Items
+
+        private void btnBothItems_Click(object sender, EventArgs e)
+        {
+            string trimmed = String.Concat(txtSelectedSubClass.Text.Where(c => !Char.IsWhiteSpace(c)));
+            if (btnBothItems.Enabled == true)
+            {
+                btnCreateFile.Visible = true;
+                btnPrint.Visible = true;
+                lblFile.Visible = true;
+            }
+            
+            checkBoxUniques.Enabled = false;
+            #region Both Uniques Check
+            
+                //Declaring the contents of the text box as a string
+                string uniquesLevelInput = txtUniquesLvl.Text.ToUpper();
+                //Checks if the input can be parsed
+                bool tryUniquesLevelParse = int.TryParse(uniquesLevelInput, out int uniquesLevel);
+                //If the input cannot be parsed it is a word so output invalid format message
+                if (tryUniquesLevelParse != true)
+                {
+                    MessageBox.Show("Invalid entry: must be in integer format");
+                }
+                if (uniquesLevel < 0)
+                {
+                    MessageBox.Show("Invalid: Item level must be > 0");
+                }
+                if (uniquesLevel > 85)
+                {
+                    MessageBox.Show("Invalid: Item level must be 85 or lower");
+                }
+                else if (uniquesLevel > 0 && uniquesLevel < 36)
+                {
+                    MessageBox.Show("Items with an item level of 1-35 can drop in normal mode");
+                }
+
+                else if (uniquesLevel >= 36 && uniquesLevel <= 66)
+                {
+                    MessageBox.Show("Items with an item level of 36-67 can drop anywhere in nightmare mode");
+                }
+
+                else if (uniquesLevel > 67 && uniquesLevel < 75)
+                {
+                    MessageBox.Show("Items with an item level of 68-74 can drop anywhere in hell mode");
+                }
+            #region Fire sorc mf
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "FIRE")
+            {
+
+                txtMFSpots.Text = "";
+                string[] FireMFSpots = { "COUNTESS", "MAUSOLEUM", "COWS", "ANDARIEL", "ANCIENT_TUNNELS", "MAGGOT_LAIR", "ARCANE_SANCTUARY", "MEPHISTO", "PINDLESKIN", "NIHLATHAK" };
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < FireMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(FireMFSpots[u] + " " + Environment.NewLine);
+                }
+
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for fire sorc mf
+            #region Ice sorc mf
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "ICE")
+            {
+                string[] IceMFSpots = { "MAUSOLEUM", "COWS", "ANCIENT_TUNNELS", "MEPHISTO", "PINDLESKIN", "NIHLATHAK" };
+                txtMFSpots.Text = "";
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < IceMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(IceMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for ice sorc mf
+            #region Lightning sorc mf
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "LIGHTNING")
+            {
+                txtMFSpots.Text = "";
+                string[] LightMFSpots = { "THE_PIT", "THE_HOLE", "COUNTESS", "MAUSOLEUM", "COWS", "ANDARIEL", "ANCIENT_TUNNELS", "MAGGOT_LAIR", "ARCANE_SANCTUARY", "TRAVINCAL", "MEPHISTO", "CHAOS_SANCTUARY", "FRIGID_HIGHLANDS", "PINDLESKIN", "BAAL_RUNS", "NIHLATHAK" };
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                MessageBox.Show("This is assuming that you have an ininifty runeword on your merc, if you do not it is not worth farming any place other than cows");
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < LightMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(LightMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for lightning sorc mf
+            #region Summon and Bonespear necro
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "SUMMONER" || txtSelectedSubClass.Text.ToUpper() == "BONESPEAR")
+            {
+                txtMFSpots.Text = "";
+                string[] sumSpearMFSpots = { "THE_PIT", "THE_HOLE", "MAUSOLEUM", "COWS", "ANCIENT_TUNNELS", "TRAVINCAL", "CHAOS_SANCTUARY", "FRIGID_HIGHLANDS", "PINDLESKIN", "BAAL_RUNS" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < sumSpearMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(sumSpearMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for sumSpear necro mf
+            #region PoisonNova necro
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "POISONNOVA")
+            {
+                txtMFSpots.Text = "";
+                string[] novaMFSpots = { "THE_PIT", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < novaMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(novaMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for Poison Nova necro mf
+            #region Zeal pally
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "ZEAL")
+            {
+                txtMFSpots.Text = "";
+                string[] zealMFSpots = { "THE_PIT", "MAUSOLEUM", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS", "BAAL_RUNS", "CHAOS_SANCTUARY" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < zealMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(zealMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for zeal pally mf
+            #region Hammerdin mf
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "HAMMERDIN")
+            {
+                string[] hamMFSpots = { "THE_PIT", "THE_HOLE", "COUNTESS", "MAUSOLEUM", "COWS", "ANDARIEL", "ANCIENT_TUNNELS", "MAGGOT_LAIR", "ARCANE_SANCTUARY", "TRAVINCAL", "MEPHISTO", "CHAOS_SANCTUARY", "FRIGID_HIGHLANDS", "PINDLESKIN", "BAAL_RUNS", "NIHLATHAK" };
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                MessageBox.Show("This is assuming that you have an enigma chestplate, if you do not why the hell are you playing hammerdin? Go farm with a sorc or something until your not broke :'(");
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < hamMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(hamMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion //for hammerdin region
+            #region Smiter pally
+
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "SMITER")
+            {
+                txtMFSpots.Text = "";
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.Text = "What in Gods name are you doing trying to MF with a smiter???";
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for Smiter pally mf
+            #region BaeBlade
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "WHIRLWIND")
+            {
+                txtMFSpots.Text = "";
+                string[] wwMFSpots = { "THE_PIT", "MAUSOLEUM", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS", "BAAL_RUNS", "CHAOS_SANCTUARY" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < wwMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(wwMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for my favourite child hood toy
+            #region Find Item
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "FINDITEM")
+            {
+                txtMFSpots.Text = "";
+                string[] findItemMFSpots = { "TRAVINCAL" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < findItemMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(findItemMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for Find Item Barb
+            #region TrapSin
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "TRAPSIN")
+            {
+                txtMFSpots.Text = "";
+                string[] trapMFSpots = { "THE_PIT", "THE_HOLE", "COWS", "ARCANE_SANCTUARY", "FRIGID_HIGHLANDS", "PINDLESKIN" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < trapMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(trapMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for trap sin
+            #region Martial Arts
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "MARTIALARTS")
+            {
+                txtMFSpots.Text = "";
+
+                string[] kickMFSpots = { "THE_PIT", "MAUSOLEUM", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS", "BAAL_RUNS", "CHAOS_SANCTUARY" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < kickMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(kickMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for zeal pally mf
+            #region Fury Javazon
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "FURYJAVAZON")
+            {
+                txtMFSpots.Text = "";
+                string[] LightMFSpots = { "COWS", "ARCANE_SANCTUARY", "FRIGID_HIGHLANDS", "PINDLESKIN", "BAAL_RUNS" };
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < LightMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(LightMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for lightning javazon
+            #region Plauge Javazon
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "PLAUGEJAVAZON")
+            {
+                txtMFSpots.Text = "";
+                string[] pjavMFSpots = { "THE_PIT", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < pjavMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(pjavMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for PlaugeJavazon
+            #region Bowazon
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "BOWAZON")
+            {
+                txtMFSpots.Text = "";
+                string[] bowMFSpots = { "THE_PIT", "MAUSOLEUM", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS", "BAAL_RUNS", "CHAOS_SANCTUARY" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < bowMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(bowMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for bowazon
+            #region Tornado
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "TORNADO")
+            {
+                txtMFSpots.Text = "";
+                string[] sharkMFSpots = { "THE_PIT", "MAUSOLEUM", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS", "BAAL_RUNS", "CHAOS_SANCTUARY" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < sharkMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(sharkMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for sharknado
+            #region Rawr x3
+            //Funny furry jokes for shapeshifter man
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "SHAPESHIFTER")
+            {
+                txtMFSpots.Text = "";
+                string[] furryMFSpots = { "THE_PIT", "MAUSOLEUM", "THE_HOLE", "COWS", "TRAVINCAL", "FRIGID_HIGHLANDS", "BAAL_RUNS", "CHAOS_SANCTUARY" };
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < furryMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(furryMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for SonicFox
+            #region Fissure
+            else if (uniquesLevel > 74 && uniquesLevel < 86 && trimmed.ToUpper() == "FISSURE")
+            {
+                txtMFSpots.Text = "";
+                string[] fissureMFSpots = { "MAUSOLEUM", "COWS", "ANDARIEL", "ANCIENT_TUNNELS", "MAGGOT_LAIR", "ARCANE_SANCTUARY", "PINDLESKIN" };
+                btnNecro.Enabled = false;
+                btnPally.Enabled = false;
+                btnSorc.Enabled = false;
+                btnSin.Enabled = false;
+                btnBarb.Enabled = false;
+                btnZon.Enabled = false;
+                btnDruid.Enabled = false;
+                txtMFSpots.Visible = true;
+                lblFarmSpots.Visible = true;
+                txtLevel.ReadOnly = true;
+                checkBoxRunes.Enabled = false;
+                txtMFSpots.AppendText(lblSelectedChar.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblSubSelected.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText(lblCurrentLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Unique level: " + txtUniquesLvl.Text + " " + Environment.NewLine);
+                txtMFSpots.AppendText("Where to farm in hell mode: " + " " + Environment.NewLine);
+                txtMFSpots.AppendText(" " + Environment.NewLine);
+                for (int u = 0; u < fissureMFSpots.Length; u++)
+                {
+                    txtMFSpots.AppendText(fissureMFSpots[u] + " " + Environment.NewLine);
+                }
+                txtMFSpots.ReadOnly = true;
+            }
+            #endregion//for fissure druid
+
+            #endregion
+            #region Both Rune Check
+            //Declaring the contents of the text box as a string
+            string runeLevelInput = txtRuneLvl.Text.ToUpper();
+            //Checks if the input can be parsed
+            bool tryRuneLevelParse = int.TryParse(runeLevelInput, out int runeLevel);
+            //If the input cannot be parsed it is a word so output invalid format message
+            if (tryRuneLevelParse != true)
+            {
+                MessageBox.Show("Invalid entry: must be in int format");
+            }
+
+            if (runeLevel < 1)
+            {
+                MessageBox.Show("Invalid Entry: Runes must be at least level 1");
+            }
+
+            if (runeLevel > 69)
+            {
+                MessageBox.Show("Invalid Entry: Runes cannot be higher than level 69");
+            }
+
+            else if (runeLevel > 1 && runeLevel < 20)
+            {
+                MessageBox.Show("Runes with an rune level of 1-20 can be farmed at act 1 countess");
+            }
+
+            else if (runeLevel > 21 && runeLevel < 30)
+            {
+                MessageBox.Show("Runes with an rune level of 21-30 can drop in acts 1-3 nightmare");
+            }
+
+            else if (runeLevel > 30 && runeLevel < 44)
+            {
+                MessageBox.Show("Runes with an rune level of 30-43 can drop in act4 nightmare and above");
+            }
+
+            else if (runeLevel > 43 && runeLevel <= 50)
+            {
+                txtMFSpots.Text = "Farm Hell Countess";
+            }
+            #endregion
+        }//For the both button
+        #endregion
+       //vvv Hear me out, this is a restart button
+        #region Restart Button
+        //Credit to https://stackoverflow.com/questions/779405/how-do-i-restart-my-c-sharp-winform-application for these two lines
+        private void btnRestart_Click(object sender, EventArgs e)
+        {
+            //Exits the environment and restarts
+            Application.Restart();
+            Environment.Exit(0);
+        }
+        //Man that was so worth commenting
+        #endregion
+        //The below code is used for exporting via file.io
+        #region Print Text File
+        private void btnCreateFile_Click(object sender, EventArgs e)
+        {
+            //Declares the path of the file
+            string path = @"MfSpots.txt";
+            var mfFile = File.Create(path);
+            //Stops using the file so it can be opened by the next part
+            mfFile.Close();
+            MessageBox.Show("File Succesfully Created At: " + path);
+        }
+        private void btnPrint_Click(object sender, EventArgs e)
+        {
+            string path = @"MfSpots.txt";
+            //Writes all the text in the txtMFSpots text box to the file
+            File.WriteAllText(path, txtMFSpots.Text);
+            MessageBox.Show("File Succesfully Sent To: " + path);
+        }
+
+
+        #endregion
+
+        //Part 2
+        //vvv The code below is setting up the second program by hiding and showing a bunch of elements
+        #region Setting New Page
+        private void btnGuide_Click(object sender, EventArgs e)
+        {
+            lblSuitedClass.Visible = true;
+            //Hides the button used to get here
+            btnGuide.Visible = false;
+            //You have the ability to click this button until you complete the level selection
+            //Turning off all of the elements in the first program
+            charPanel.Visible = false;
+            btnNecro.Visible = false;
+            lblSelectedChar.Visible = false;
+            lblCurrentLvl.Visible = false;
+            lblSubSelected.Visible = false;
+            lblSelectedSubClass.Visible = false;
+            txtSelectedSubClass.Visible = false;
+            btnSubClassCheck.Visible = false;
+            lblLevel.Visible = false;
+            txtLevel.Visible = false;
+            btnLevel.Visible = false;
+            //Turning on all the new elements
+            btnCheckReset.Visible = true;
+            lblQ1.Visible = true;
+            lblQ2.Visible = true;
+            lblQ3.Visible = true;
+            lblQ4.Visible = true;
+            tableQ1.Visible = true;
+            tableQ2.Visible = true;
+            tableQ3.Visible = true;
+            tableQ4.Visible = true;
+            checkClose.Visible = true;
+            checkAfar.Visible = true;
+            checkPhys.Visible = true;
+            checkMagic.Visible = true;
+            checkAlone.Visible = true;
+            checkUnited.Visible = true;
+            checkYes.Visible = true;
+            checkNo.Visible = true;
+            btnQuest.Visible = true;
+            //Changes the title to vvv
+            lblTitle.Text = "Welcome to the build guide";
+        }
+        #endregion
+        //vvv The code below just locks the check boxes you didnt click to avoid every check box being checked
+        #region LockingCheck Boxes
+        //If the United check is checked locks the other option and removes the mana question as it is irrelevent to united classes
+        private void checkUnited_CheckedChanged(object sender, EventArgs e)
+        {
+            lblQ4.Visible = false;
+            tableQ4.Visible = false;
+            checkAlone.Enabled = false;
+        }
+        //If this is checked it locked the option beside, this happens with all the checks in this region
+        private void checkAfar_CheckedChanged(object sender, EventArgs e)
+        {
+            checkClose.Enabled = false;
+        }
+        private void checkClose_CheckedChanged(object sender, EventArgs e)
+        {
+            checkAfar.Enabled = false;
+        }
+        private void checkPhys_CheckedChanged(object sender, EventArgs e)
+        {
+            checkMagic.Enabled = false;
+        }
+        private void checkMagic_CheckedChanged(object sender, EventArgs e)
+        {
+            checkPhys.Enabled = false;
+        }
+        private void checkAlone_CheckedChanged(object sender, EventArgs e)
+        {
+            checkUnited.Enabled = false;
+        }
+        private void checkYes_CheckedChanged(object sender, EventArgs e)
+        {
+            checkNo.Enabled = false;
+        }
+        private void checkNo_CheckedChanged(object sender, EventArgs e)
+        {
+            checkYes.Enabled = false;
+        }
+
+        #endregion
+        //vvv Checks which check boxes are checked and outputs accordingly
+        #region Questionaire
+
+        private void btnQuest_Click(object sender, EventArgs e)
+        {
+            //Checks the check boxes for a certain synergy and outputs suited classes, this is the same for all the other if statements in this region
+            //close,phys,alone,yes
+            if (checkClose.Checked && checkPhys.Checked && checkAlone.Checked && checkYes.Checked)
+            {
+                lblWW.Visible = true;
+                lblKick.Visible = true;
+                lblFurry.Visible = true;
+                lblZeal.Visible = false;
+                lblZerk.Visible = false;
+                lblSmite.Visible = false;
+                lblSumNec.Visible = false;
+                lblSumDruid.Visible = false;
+                lblAvenger.Visible = false;
+                lblAura.Visible = false;
+                lblEnchSorc.Visible = false;
+                lblSingBarb.Visible = false;
+                lblNado.Visible = false;
+                lblMultishot.Visible = false;
+                lblBladesin.Visible = false;
+                lblThrowBarb.Visible = false;
+                lblLight.Visible = false;
+                lblFire.Visible = false;
+                lblIce.Visible = false;
+                lblJavazon.Visible = false;
+                lblPlague.Visible = false;
+                lblFreeze.Visible = false;
+                lblFissure.Visible = false;
+                lblSpear.Visible = false;
+                lblNova.Visible = false;
+                lblTrapsin.Visible = false;
+            }
+            //close,phys,alone,no
+            if (checkClose.Checked && checkPhys.Checked && checkAlone.Checked && checkNo.Checked)
+            {
+                lblZeal.Visible = true;
+                lblZerk.Visible = true;
+                lblSmite.Visible = true;
+                lblWW.Visible = false;
+                lblKick.Visible = false;
+                lblFurry.Visible = false;
+                lblSumNec.Visible = false;
+                lblSumDruid.Visible = false;
+                lblAvenger.Visible = false;
+                lblAura.Visible = false;
+                lblEnchSorc.Visible = false;
+                lblSingBarb.Visible = false;
+                lblNado.Visible = false;
+                lblMultishot.Visible = false;
+                lblBladesin.Visible = false;
+                lblThrowBarb.Visible = false;
+                lblLight.Visible = false;
+                lblFire.Visible = false;
+                lblIce.Visible = false;
+                lblJavazon.Visible = false;
+                lblPlague.Visible = false;
+                lblFreeze.Visible = false;
+                lblFissure.Visible = false;
+                lblSpear.Visible = false;
+                lblNova.Visible = false;
+                lblTrapsin.Visible = false;
+            }
+            //close,phy,united
+            if(checkClose.Checked && checkPhys.Checked && checkUnited.Checked)
+            {
+                lblSumNec.Visible = true;
+                lblSumDruid.Visible = true;
+                lblWW.Visible = false;
+                lblKick.Visible = false;
+                lblFurry.Visible = false;
+                lblZeal.Visible = false;
+                lblZerk.Visible = false;
+                lblSmite.Visible = false;
+                lblAvenger.Visible = false;
+                lblAura.Visible = false;
+                lblEnchSorc.Visible = false;
+                lblSingBarb.Visible = false;
+                lblNado.Visible = false;
+                lblMultishot.Visible = false;
+                lblBladesin.Visible = false;
+                lblThrowBarb.Visible = false;
+                lblLight.Visible = false;
+                lblFire.Visible = false;
+                lblIce.Visible = false;
+                lblJavazon.Visible = false;
+                lblPlague.Visible = false;
+                lblFreeze.Visible = false;
+                lblFissure.Visible = false;
+                lblSpear.Visible = false;
+                lblNova.Visible = false;
+                lblTrapsin.Visible = false;
+            }
+            //close,mag,alone,yes
+            if (checkClose.Checked && checkMagic.Checked && checkAlone.Checked && checkYes.Checked)
+            {
+                lblAvenger.Visible = true;
+                lblAura.Visible = true;
+                lblWW.Visible = false;
+                lblKick.Visible = false;
+                lblFurry.Visible = false;
+                lblZeal.Visible = false;
+                lblZerk.Visible = false;
+                lblSmite.Visible = false;
+                lblSumNec.Visible = false;
+                lblSumDruid.Visible = false;
+                lblEnchSorc.Visible = false;
+                lblSingBarb.Visible = false;
+                lblNado.Visible = false;
+                lblMultishot.Visible = false;
+                lblBladesin.Visible = false;
+                lblThrowBarb.Visible = false;
+                lblLight.Visible = false;
+                lblFire.Visible = false;
+                lblIce.Visible = false;
+                lblJavazon.Visible = false;
+                lblPlague.Visible = false;
+                lblFreeze.Visible = false;
+                lblFissure.Visible = false;
+                lblSpear.Visible = false;
+                lblNova.Visible = false;
+                lblTrapsin.Visible = false;
+            }
+            //close,mag,united
+            if (checkClose.Checked && checkMagic.Checked && checkUnited.Checked)
+            {
+                lblEnchSorc.Visible = true;
+                lblSingBarb.Visible = true;
+                lblWW.Visible = false;
+                lblKick.Visible = false;
+                lblFurry.Visible = false;
+                lblZeal.Visible = false;
+                lblZerk.Visible = false;
+                lblSmite.Visible = false;
+                lblSumNec.Visible = false;
+                lblSumDruid.Visible = false;
+                lblAvenger.Visible = false;
+                lblAura.Visible = false;
+                lblNado.Visible = false;
+                lblMultishot.Visible = false;
+                lblBladesin.Visible = false;
+                lblThrowBarb.Visible = false;
+                lblLight.Visible = false;
+                lblFire.Visible = false;
+                lblIce.Visible = false;
+                lblJavazon.Visible = false;
+                lblPlague.Visible = false;
+                lblFreeze.Visible = false;
+                lblFissure.Visible = false;
+                lblSpear.Visible = false;
+                lblNova.Visible = false;
+                lblTrapsin.Visible = false;
+            }
+            //afar,phys,alone,yes
+            if (checkAfar.Checked && checkPhys.Checked && checkAlone.Checked && checkYes.Checked)
+            {
+                lblNado.Visible = true;
+                lblMultishot.Visible = true;
+                lblWW.Visible = false;
+                lblKick.Visible = false;
+                lblFurry.Visible = false;
+                lblZeal.Visible = false;
+                lblZerk.Visible = false;
+                lblSmite.Visible = false;
+                lblSumNec.Visible = false;
+                lblSumDruid.Visible = false;
+                lblAvenger.Visible = false;
+                lblAura.Visible = false;
+                lblEnchSorc.Visible = false;
+                lblSingBarb.Visible = false;
+                lblBladesin.Visible = false;
+                lblThrowBarb.Visible = false;
+                lblLight.Visible = false;
+                lblFire.Visible = false;
+                lblIce.Visible = false;
+                lblJavazon.Visible = false;
+                lblPlague.Visible = false;
+                lblFreeze.Visible = false;
+                lblFissure.Visible = false;
+                lblSpear.Visible = false;
+                lblNova.Visible = false;
+                lblTrapsin.Visible = false;
+            }
+            //afar,phys,alone,no
+            if(checkAfar.Checked && checkPhys.Checked && checkAlone.Checked && checkNo.Checked)
+            {
+                lblBladesin.Visible = true;
+                lblThrowBarb.Visible = true;
+                lblWW.Visible = false;
+                lblKick.Visible = false;
+                lblFurry.Visible = false;
+                lblZeal.Visible = false;
+                lblZerk.Visible = false;
+                lblSmite.Visible = false;
+                lblSumNec.Visible = false;
+                lblSumDruid.Visible = false;
+                lblAvenger.Visible = false;
+                lblAura.Visible = false;
+                lblEnchSorc.Visible = false;
+                lblSingBarb.Visible = false;
+                lblNado.Visible = false;
+                lblMultishot.Visible = false;
+                lblLight.Visible = false;
+                lblFire.Visible = false;
+                lblIce.Visible = false;
+                lblJavazon.Visible = false;
+                lblPlague.Visible = false;
+                lblFreeze.Visible = false;
+                lblFissure.Visible = false;
+                lblSpear.Visible = false;
+                lblNova.Visible = false;
+                lblTrapsin.Visible = false;
+            }
+            //afar,phys,united
+            if (checkAfar.Checked && checkPhys.Checked && checkUnited.Checked)
+            {
+                lblAPU.Visible = true;
+                lblAPU.Text = "There is not such build for this play style, but hey, this means you are unique!";
+            }
+            //afar,mag,alone,yes
+            if (checkAfar.Checked && checkMagic.Checked && checkAlone.Checked && checkYes.Checked)
+            {
+                lblLight.Visible = true;
+                lblFire.Visible = true;
+                lblIce.Visible = true;
+                lblJavazon.Visible = true;
+                lblWW.Visible = false;
+                lblKick.Visible = false;
+                lblFurry.Visible = false;
+                lblZeal.Visible = false;
+                lblZerk.Visible = false;
+                lblSmite.Visible = false;
+                lblSumNec.Visible = false;
+                lblSumDruid.Visible = false;
+                lblAvenger.Visible = false;
+                lblAura.Visible = false;
+                lblEnchSorc.Visible = false;
+                lblSingBarb.Visible = false;
+                lblNado.Visible = false;
+                lblMultishot.Visible = false;
+                lblBladesin.Visible = false;
+                lblThrowBarb.Visible = false;
+                lblPlague.Visible = false;
+                lblFreeze.Visible = false;
+                lblFissure.Visible = false;
+                lblSpear.Visible = false;
+                lblNova.Visible = false;
+                lblTrapsin.Visible = false;
+            }
+            //afar,mag,alone.,no
+            if (checkAfar.Checked && checkMagic.Checked && checkAlone.Checked && checkNo.Checked)
+            {
+                lblPlague.Visible = true;
+                lblFreeze.Visible = true;
+                lblFissure.Visible = true;
+                lblSpear.Visible = true;
+                lblNova.Visible = true;
+                lblWW.Visible = false;
+                lblKick.Visible = false;
+                lblFurry.Visible = false;
+                lblZeal.Visible = false;
+                lblZerk.Visible = false;
+                lblSmite.Visible = false;
+                lblSumNec.Visible = false;
+                lblSumDruid.Visible = false;
+                lblAvenger.Visible = false;
+                lblAura.Visible = false;
+                lblEnchSorc.Visible = false;
+                lblSingBarb.Visible = false;
+                lblNado.Visible = false;
+                lblMultishot.Visible = false;
+                lblBladesin.Visible = false;
+                lblThrowBarb.Visible = false;
+                lblLight.Visible = false;
+                lblFire.Visible = false;
+                lblIce.Visible = false;
+                lblJavazon.Visible = false;
+                lblTrapsin.Visible = false;
+            }
+            //afar,mag,united
+            if (checkAfar.Checked && checkMagic.Checked && checkUnited.Checked)
+            {
+                lblTrapsin.Visible = true;
+                lblWW.Visible = false;
+                lblKick.Visible = false;
+                lblFurry.Visible = false;
+                lblZeal.Visible = false;
+                lblZerk.Visible = false;
+                lblSmite.Visible = false;
+                lblSumNec.Visible = false;
+                lblSumDruid.Visible = false;
+                lblAvenger.Visible = false;
+                lblAura.Visible = false;
+                lblEnchSorc.Visible = false;
+                lblSingBarb.Visible = false;
+                lblNado.Visible = false;
+                lblMultishot.Visible = false;
+                lblBladesin.Visible = false;
+                lblThrowBarb.Visible = false;
+                lblLight.Visible = false;
+                lblFire.Visible = false;
+                lblIce.Visible = false;
+                lblJavazon.Visible = false;
+                lblPlague.Visible = false;
+                lblFreeze.Visible = false;
+                lblFissure.Visible = false;
+                lblSpear.Visible = false;
+                lblNova.Visible = false;
+            }
+            
+        }//for btnQuest
+
+        #endregion
+        //vvv Another reset button, just sets everything to default
+        #region Reset Button
+        private void btnCheckReset_Click(object sender, EventArgs e)
+        {
+            //Class labels color to black
+            lblWW.ForeColor = Color.Black;
+            lblKick.ForeColor = Color.Black;
+            lblFurry.ForeColor = Color.Black;
+            lblZeal.ForeColor = Color.Black;
+            lblZerk.ForeColor = Color.Black;
+            lblSmite.ForeColor = Color.Black;
+            lblSumNec.ForeColor = Color.Black;
+            lblSumDruid.ForeColor = Color.Black;
+            lblAvenger.ForeColor = Color.Black;
+            lblAura.ForeColor = Color.Black;
+            lblEnchSorc.ForeColor = Color.Black;
+            lblSingBarb.ForeColor = Color.Black;
+            lblNado.ForeColor = Color.Black;
+            lblMultishot.ForeColor = Color.Black;
+            lblBladesin.ForeColor = Color.Black;
+            lblThrowBarb.ForeColor = Color.Black;
+            lblLight.ForeColor = Color.Black;
+            lblFire.ForeColor = Color.Black;
+            lblIce.ForeColor = Color.Black;
+            lblJavazon.ForeColor = Color.Black;
+            lblPlague.ForeColor = Color.Black;
+            lblFreeze.ForeColor = Color.Black;
+            lblFissure.ForeColor = Color.Black;
+            lblSpear.ForeColor = Color.Black;
+            lblNova.ForeColor = Color.Black;
+            lblTrapsin.ForeColor = Color.Black;
+            //Class labels enable
+            lblWW.Enabled = true;
+            lblKick.Enabled = true;
+            lblFurry.Enabled = true;
+            lblZeal.Enabled = true;
+            lblZerk.Enabled = true;
+            lblSmite.Enabled = true;
+            lblSumNec.Enabled = true;
+            lblSumDruid.Enabled = true;
+            lblAvenger.Enabled = true;
+            lblAura.Enabled = true;
+            lblEnchSorc.Enabled = true;
+            lblSingBarb.Enabled = true;
+            lblNado.Enabled = true;
+            lblMultishot.Enabled = true;
+            lblBladesin.Enabled = true;
+            lblThrowBarb.Enabled = true;
+            lblLight.Enabled = true;
+            lblFire.Enabled = true;
+            lblIce.Enabled = true;
+            lblJavazon.Enabled = true;
+            lblPlague.Enabled = true;
+            lblFreeze.Enabled = true;
+            lblFissure.Enabled = true;
+            lblSpear.Enabled = true;
+            lblNova.Enabled = true;
+            lblTrapsin.Enabled = true;
+            //Class labels visible
+            lblAPU.Visible = false;
+            lblWW.Visible = false;
+            lblKick.Visible = false;
+            lblFurry.Visible = false;
+            lblZeal.Visible = false;
+            lblZerk.Visible = false;
+            lblSmite.Visible = false;
+            lblSumNec.Visible = false;
+            lblSumDruid.Visible = false;
+            lblAvenger.Visible = false;
+            lblAura.Visible = false;
+            lblEnchSorc.Visible = false;
+            lblSingBarb.Visible = false;
+            lblNado.Visible = false;
+            lblMultishot.Visible = false;
+            lblBladesin.Visible = false;
+            lblThrowBarb.Visible = false;
+            lblLight.Visible = false;
+            lblFire.Visible = false;
+            lblIce.Visible = false;
+            lblJavazon.Visible = false;
+            lblPlague.Visible = false;
+            lblFreeze.Visible = false;
+            lblFissure.Visible = false;
+            lblSpear.Visible = false;
+            lblNova.Visible = false;
+            lblTrapsin.Visible = false;
+            txtBuild.Visible = false;
+            lblBuild.Visible = false;
+            //Clear 
+            txtBuild.Text = "";
+            lblAPU.Text = "";
+            //Uncheck all boxes
+            checkClose.Checked = false;
+            checkAfar.Checked = false;
+            checkMagic.Checked = false;
+            checkPhys.Checked = false;
+            checkAlone.Checked = false;
+            checkUnited.Checked = false;
+            checkYes.Checked = false;
+            checkNo.Checked = false;
+            //re-enable all boxes
+            checkClose.Enabled = true;
+            checkAfar.Enabled = true;
+            checkMagic.Enabled = true;
+            checkPhys.Enabled = true;
+            checkAlone.Enabled = true;
+            checkUnited.Enabled = true;
+            checkYes.Enabled = true;
+            checkNo.Enabled = true;
+            checkClose.Enabled = true;
+            //Re-Show Yes/No
+            lblQ4.Visible = true;
+            tableQ4.Visible = true;
+        }
+
+
+        #endregion
+        //vvv This code determines the contents of the txtBuild text box based on which class you have selected
+        #region Build Choice
+        //there are 27 hidden labels and depending on the asnwers to the quetionaire certain onces will appear 
+        //the user will be able to click whichever one they'd like a build for
+        //vvv Much like subclass selection all the classes are just this one copy and pasted while being slightly modified vvv
+        #region WW
+        private void lblWW_Click(object sender, EventArgs e)
+        {
+            //The next 3 lines of code are making the file.io buttons visible
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            //Sets the colour of the selected class to Lime
+            lblWW.ForeColor = Color.Lime;
+            //Ensures the colour of the other available classes is black (this is due to issues with the reset button)
+            lblKick.ForeColor = Color.Black;
+            lblFurry.ForeColor = Color.Black;
+            //Disables the other options so you cannot spam the both with multiple builds
+            lblKick.Enabled = false;
+            lblFurry.Enabled = false;
+            //Makes the text box visible
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            //Makes all of the check boxes unavaiable
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            //Sets text box to read only
+            txtBuild.ReadOnly = true;
+            //Uses appenedtext to write all of the following info into the multi line text box
+            txtBuild.AppendText("End game WhirlWind build according to: https://www.icy-veins.com/d2/whirlwind-barbarian-build" +Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] WWBuild = { "1 point to all prerequisites", "20 points to Whirlwind", "1 point to Leap Attack", "20 points to Weapon Mastery of choice", "1 point to Increased Speed", "1 point to Natural Resistance", "1 point to Battle Command", "20 points to Battle Orders", "1+ points to Shout" };
+            //Reads through the build array and prints it ^^
+            for (int z = 0; z < WWBuild.Length; z++)
+            {
+                txtBuild.AppendText(WWBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        //Again all of this below is the same concept as that above ^^^
+        #region Kick
+        private void lblKick_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblKick.ForeColor = Color.Lime;
+            lblWW.ForeColor = Color.Black;
+            lblFurry.ForeColor = Color.Black;
+            lblWW.Enabled = false;
+            lblFurry.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Kicksin build according to: https://www.icy-veins.com/d2/dragon-talon-assassin-kicksin-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] KickBuild = { "1 point to all prerequisites", "20 points to Dragon Talon", "20 points to Venom ", "1 point to Dragon Flight ", "1 point to Cloak of Shadows ", "1 point to Mind Blast ", "1 point to Burst of Speed ", "1 point to Fade "};
+            for (int z = 0; z < KickBuild.Length; z++)
+            {
+                txtBuild.AppendText(KickBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Furry
+        private void lblFurry_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblFurry.ForeColor = Color.Lime;
+            lblKick.ForeColor = Color.Black;
+            lblWW.ForeColor = Color.Black;
+            lblWW.Enabled = false;
+            lblKick.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Fury Druid build according to: https://www.icy-veins.com/d2/fury-druid-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] FurryBuild = { "1 point to all prerequisites", "20 points to Werewolf ", "20 points to Lycanthropy", "20 points to Fury", "1+ points to Feral Rage ", "20 points to Oak Sage "};
+            for (int z = 0; z < FurryBuild.Length; z++)
+            {
+                txtBuild.AppendText(FurryBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Zeal
+        private void lblZeal_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblZeal.ForeColor = Color.Lime;
+            lblZerk.ForeColor = Color.Black;
+            lblSmite.ForeColor = Color.Black;
+            lblZerk.Enabled = false;
+            lblSmite.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Zeal Paladin build according to: https://www.icy-veins.com/d2/zealot-paladin-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] ZealBuild = { "1 point to all prerequisites", "20 points to Zeal ", "20 points to Sacrifice", "20 points to Fanatacism", "20 points to Holy Shield" };
+            for (int z = 0; z < ZealBuild.Length; z++)
+            {
+                txtBuild.AppendText(ZealBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Zerk
+        private void lblZerk_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblZerk.ForeColor = Color.Lime;
+            lblZeal.ForeColor = Color.Black;
+            lblSmite.ForeColor = Color.Black;
+            lblZeal.Enabled = false;
+            lblSmite.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Berserker Barb build according to: https://www.icy-veins.com/d2/berserk-barbarian-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] ZerkBuild = { "1 point to all prerequisites", "20 points to Berserk", "20 points to Weapon Mastery of choice", "1 point to Increase Speed", "1 point to Natural Resistance", "20 points to Howl", "1+ points to Shout", "1+ points to Battle Orders", "1+ points to Battle Command", "15+ points ot Find Item (Only after all the rest)" };
+            for (int z = 0; z < ZerkBuild.Length; z++)
+            {
+                txtBuild.AppendText(ZerkBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Smite
+        private void lblSmite_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblSmite.ForeColor = Color.Lime;
+            lblZeal.ForeColor = Color.Black;
+            lblZerk.ForeColor = Color.Black;
+            lblZeal.Enabled = false;
+            lblZerk.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Smite Paladin build according to: https://www.icy-veins.com/d2/smiter-paladin-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] SmiteBuild = { "1 point to all prerequisites", "20 points to Smite ", "20 points to Fanatacism", "20 points to Holy Shield" };
+            for (int z = 0; z < SmiteBuild.Length; z++)
+            {
+                txtBuild.AppendText(SmiteBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Summon Necro
+        private void lblSumNec_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblSumNec.ForeColor = Color.Lime;
+            lblSumDruid.ForeColor = Color.Black;
+            lblSumDruid.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Summon Necro build according to: https://www.icy-veins.com/d2/summoner-necromancer-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] SumNecBuild = { "1 point to all prerequisites", "20 points to Raise Skeleton ", "20 points to Skelton Mastery", "1 point to Clay Golem", "1+ to Corpse Explosion", "1 point to Summon Resist", "1 point to Amplify Damage", "1 point to Decrepify"  };
+            for (int z = 0; z < SumNecBuild.Length; z++)
+            {
+                txtBuild.AppendText(SumNecBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Summon Druid
+        private void lblSumDruid_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblSumDruid.ForeColor = Color.Lime;
+            lblSumNec.ForeColor = Color.Black;
+            lblSumNec.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Summon Druid build according to: https://www.icy-veins.com/d2/summoner-druid-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] SumDruidBuild = { "1 point to all prerequisites", "20 points to Summon Grizzly ", "20 points to Summon Dire Wolf", "20 points to Summon Spirit Wolf", "20 points to Sage of your choosing" };
+            for (int z = 0; z < SumDruidBuild.Length; z++)
+            {
+                txtBuild.AppendText(SumDruidBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Avenger
+        private void lblAvenger_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblAvenger.ForeColor = Color.Lime;
+            lblAura.ForeColor = Color.Black;
+            lblAura.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Avenger Paladin build according to: https://www.icy-veins.com/d2/avenger-paladin-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] AvengerBuild = { "1 point to all prerequisites", "20 points to Vengeance ", "1 point to Holy Shield", "20 points to Conviction", "20 points to Resist Lightning", "20 points to Resisit Fire", "Resisit Cold", "1+ points to Salvation" };
+            for (int z = 0; z < AvengerBuild.Length; z++)
+            {
+                txtBuild.AppendText(AvengerBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Aura
+        private void lblAura_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblAura.ForeColor = Color.Lime;
+            lblAvenger.ForeColor = Color.Black;
+            lblAvenger.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Auradin Paladin build according to: https://www.wowhead.com/guides/tesladin-dream-auradin-paladin-build-skills-gear-diablo-2#skills" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] AuraBuild = { "1 point to all prerequisites", "20 points to Zeal ", "1 point to Holy Shield", "20 points to Sacrifice", "20 points to Resist Lightning", "20 points to Conviction", "20 points to Salvation" };
+            for (int z = 0; z < AuraBuild.Length; z++)
+            {
+                txtBuild.AppendText(AuraBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region EnchSorc
+        private void lblEnchSorc_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblEnchSorc.ForeColor = Color.Lime;
+            lblSingBarb.ForeColor = Color.Black;
+            lblSingBarb.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Enchant Sorcerer build according to: https://www.icy-veins.com/d2/enchantress-sorceress-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] EnchSorcBuild = { "1 point to all prerequisites", "20 points to Enchant ", "20 points to Warmth", "20 points to Fire Mastery", "1 point to Teleport", "1 point to Static Field", "1 point to Frozen Armor" };
+            for (int z = 0; z < EnchSorcBuild.Length; z++)
+            {
+                txtBuild.AppendText(EnchSorcBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Singer Barb
+        private void lblSingBarb_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblSingBarb.ForeColor = Color.Lime;
+            lblEnchSorc.ForeColor = Color.Black;
+            lblEnchSorc.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Singer Barbarian build according to: https://www.icy-veins.com/d2/war-cry-barbarian-singer-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] SingBarbBuild = { "1 point to all prerequisites", "20 points to War Cry ", "20 points to Battle Orders", "20 points to Battle Cry", "20 points to Taunt", "1+ points to Howl", "1 point to Battle Command", "1 point to Increase Speed", "1+ points to Natural Resistances", "1 point to Leap" };
+            for (int z = 0; z < SingBarbBuild.Length; z++)
+            {
+                txtBuild.AppendText(SingBarbBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region MultiShot Bowazon
+        private void lblMultishot_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblMultishot.ForeColor = Color.Lime;
+            lblNado.ForeColor = Color.Black;
+            lblNado.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game MultiShot Amazon build according to: https://www.icy-veins.com/d2/multiple-shot-guided-arrow-amazon-physical-bowazon-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] MultishotBuild = { "1 point to all prerequisites", "20 points to Multishot ", "20 points to Magic Arrow", "20 points to Strafe", "20 points to Critical Strike", "20 points to Penetrate", "1 point to Battle Valkyrie"};
+            for (int z = 0; z < MultishotBuild.Length; z++)
+            {
+                txtBuild.AppendText(MultishotBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Tornado Druid
+        private void lblNado_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblNado.ForeColor = Color.Lime;
+            lblMultishot.ForeColor = Color.Black;
+            lblMultishot.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Tornado Druid build according to: https://www.icy-veins.com/d2/wind-druid-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] TornadoBuild = { "1 point to all prerequisites", "20 points to Hurricane ", "20 points to Tornado ", "20 points to Twister", "20 points to Cyclone Armor", "1-20 to Oak Sage" };
+            for (int z = 0; z < TornadoBuild.Length; z++)
+            {
+                txtBuild.AppendText(TornadoBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Bladesin
+        private void lblBladesin_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblBladesin.ForeColor = Color.Lime;
+            lblThrowBarb.ForeColor = Color.Black;
+            lblThrowBarb.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Bladesin build according to: https://www.icy-veins.com/d2/blade-fury-assassin-bladesin-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] BladesinBuild = { "1 point to all prerequisites", "20 points to Shadow Warrior ", "20 points to Venom ", "20 points to Blade Fury", "20 points to Death Sentry", "18 points to Lightning Sentry", "1 point to Shadow Master" };
+            for (int z = 0; z < BladesinBuild.Length; z++)
+            {
+                txtBuild.AppendText(BladesinBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Throwing Barb
+        private void lblThrowBarb_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblThrowBarb.ForeColor = Color.Lime;
+            lblBladesin.ForeColor = Color.Black;
+            lblBladesin.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Throw Barb build according to: https://www.icy-veins.com/d2/throw-barbarian-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] ThrowBarbBuild = { "1 point to all prerequisites", "20 points to Double Throw ", "20 points to Double Swing ", "20 points to Throwing Mastery", "20 points to Battle Orders", "1 point to Leap", "1 point to Natural Resitances", "1 point to Increase Speed", "1+ points to Howl", "1 point to Battle Command" };
+            for (int z = 0; z < ThrowBarbBuild.Length; z++)
+            {
+                txtBuild.AppendText(ThrowBarbBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Lightning Sorc
+        private void lblLight_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblLight.ForeColor = Color.Lime;
+            lblFire.ForeColor = Color.Black;
+            lblIce.ForeColor = Color.Black;
+            lblJavazon.ForeColor = Color.Black;
+            lblFire.Enabled = false;
+            lblIce.Enabled = false;
+            lblJavazon.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Lightning Sorc build according to: https://www.icy-veins.com/d2/lightning-sorceress-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] LightBuild = { "1 point to all prerequisites", "20 points to Lightning ", "20 points to Chain Lightning ", "1 point to Teleport  ", "20 points to Lightning Mastery ", "20 points to Charged Bolt ", "20 points to Nova "};
+            for (int z = 0; z < LightBuild.Length; z++)
+            {
+                txtBuild.AppendText(LightBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Fire Sorc
+        private void lblFire_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblFire.ForeColor = Color.Lime;
+            lblLight.ForeColor = Color.Black;
+            lblIce.ForeColor = Color.Black;
+            lblJavazon.ForeColor = Color.Black;
+            lblLight.Enabled = false;
+            lblIce.Enabled = false;
+            lblJavazon.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Fire Sorc build according to: https://www.icy-veins.com/d2/fireball-sorceress-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] FireBuild = { "1 point to all prerequisites", "20 points to Fire Ball ", "20 points to Meteor  ", "1 point to Teleport  ", "20 points to Fire Mastery ", "20 points to Fire Bolt ", "1 point to Frost Armor ", "1 point to Static Field " };
+            for (int z = 0; z < FireBuild.Length; z++)
+            {
+                txtBuild.AppendText(FireBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Ice Sorc
+        private void lblIce_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblIce.ForeColor = Color.Lime;
+            lblLight.ForeColor = Color.Black;
+            lblFire.ForeColor = Color.Black;
+            lblJavazon.ForeColor = Color.Black;
+            lblLight.Enabled = false;
+            lblFire.Enabled = false;
+            lblJavazon.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Ice Sorc build according to: https://www.icy-veins.com/d2/blizzard-sorceress-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] IceBuild = { "1 point to all prerequisites", "20 points to Blizzard", "20 points to Glacial Spike  ", "1 point to Teleport  ", "20 points to Ice Mastery ", "20 points to Ice Blast ","20 points to Ice Bolt ", "1 point to Frost Armor ", "1 point to Static Field " };
+            for (int z = 0; z < IceBuild.Length; z++)
+            {
+                txtBuild.AppendText(IceBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Lighting Fury Javazon
+        private void lblJavazon_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblJavazon.ForeColor = Color.Lime;
+            lblLight.ForeColor = Color.Black;
+            lblFire.ForeColor = Color.Black;
+            lblIce.ForeColor = Color.Black;
+            lblLight.Enabled = false;
+            lblFire.Enabled = false;
+            lblIce.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Lightning Javazon build according to: https://www.icy-veins.com/d2/lightning-fury-charged-strike-amazon-javazon-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] JavazonBuild = { "1 point to all prerequisites", "20 points to Lightning Fury", "20 points to Charged Strike  ", "1 point to Valkyrie  ", "20 points to Lightning Bolt ", "20 points to Lightning Strike ", "20 points to Pierce ", "1+ point to Powered Strike "};
+            for (int z = 0; z < JavazonBuild.Length; z++)
+            {
+                txtBuild.AppendText(JavazonBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Plague Javazon
+        private void lblPlague_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblPlague.ForeColor = Color.Lime;
+            lblFreeze.ForeColor = Color.Black;
+            lblFissure.ForeColor = Color.Black;
+            lblSpear.ForeColor = Color.Black;
+            lblNova.ForeColor = Color.Black;
+            lblFreeze.Enabled = false;
+            lblFissure.Enabled = false;
+            lblSpear.Enabled = false;
+            lblNova.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Plague Javazon build according to: https://www.wowhead.com/guides/poison-javazon-amazon-build-skills-gear-diablo-2" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] PlagueBuild = { "1 point to all prerequisites", "20 points to Plague Javelin", "20 points to Poison Javelin ", "6 points to Pierce  ", "20 points to Penetrate ", "20 points to Lightning Strike ", "20 points to Charged Strike ", "1+ point to Powered Strike "};
+            for (int z = 0; z < PlagueBuild.Length; z++)
+            {
+                txtBuild.AppendText(PlagueBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Freeze Bowazon
+        private void lblFreeze_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblFreeze.ForeColor = Color.Lime;
+            lblPlague.ForeColor = Color.Black;
+            lblFissure.ForeColor = Color.Black;
+            lblSpear.ForeColor = Color.Black;
+            lblNova.ForeColor = Color.Black;
+            lblPlague.Enabled = false;
+            lblFissure.Enabled = false;
+            lblSpear.Enabled = false;
+            lblNova.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Freeze Bowazon build according to: https://www.icy-veins.com/d2/freezing-arrow-frostmaiden-amazon-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] FreezeBuild = { "1 point to all prerequisites", "20 points to Freezing Arrow", "20 points to Ice Arrow ", "20 points to Valkyrie ", "20 points to Cold Arrow ", "1+ point to Pierce ", "1+ point to penetrate"};
+            for (int z = 0; z < FreezeBuild.Length; z++)
+            {
+                txtBuild.AppendText(FreezeBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Fissure Druid
+        private void lblFissure_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblFissure.ForeColor = Color.Lime;
+            lblFreeze.ForeColor = Color.Black;
+            lblPlague.ForeColor = Color.Black;
+            lblSpear.ForeColor = Color.Black;
+            lblNova.ForeColor = Color.Black;
+            lblPlague.Enabled = false;
+            lblFreeze.Enabled = false;
+            lblSpear.Enabled = false;
+            lblNova.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Fissure Druid build according to: https://www.icy-veins.com/d2/fire-druid-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] FissureBuild = { "1 point to all prerequisites", "20 points to Fissure", "20 points to Fire Storm ", "20 points to Volcano ", "20 points to Oak Sage " };
+            for (int z = 0; z < FissureBuild.Length; z++)
+            {
+                txtBuild.AppendText(FissureBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Bone Spear Necro
+        private void lblSpear_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblSpear.ForeColor = Color.Lime;
+            lblFreeze.ForeColor = Color.Black;
+            lblPlague.ForeColor = Color.Black;
+            lblFissure.ForeColor = Color.Black;
+            lblNova.ForeColor = Color.Black;
+            lblPlague.Enabled = false;
+            lblFreeze.Enabled = false;
+            lblFissure.Enabled = false;
+            lblNova.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Bone Spear Necro build according to: https://www.icy-veins.com/d2/bone-necromancer-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] SpearBuild = { "1 point to all prerequisites", "20 points to Bone Spirit", "20 points to Bone Spear ", "20 points to Bone Prison ", "20 points to Bone Wall ", "1+ points to Corpse Exsplosion", "20 points to Teeth", "1 point to Bone Armor", "1 points Amplify Damage"};
+            for (int z = 0; z < SpearBuild.Length; z++)
+            {
+                txtBuild.AppendText(SpearBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Poison Nova Necro
+        private void lblNova_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblNova.ForeColor = Color.Lime;
+            lblFreeze.ForeColor = Color.Black;
+            lblPlague.ForeColor = Color.Black;
+            lblSpear.ForeColor = Color.Black;
+            lblFissure.ForeColor = Color.Black;
+            lblPlague.Enabled = false;
+            lblFreeze.Enabled = false;
+            lblFissure.Enabled = false;
+            lblSpear.Enabled = false;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Poison Nova Necro build according to: https://www.icy-veins.com/d2/poison-necromancer-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] NovaBuild = { "1 point to all prerequisites", "20 points to Poison Nova", "20 points to Poison Explosion ", "20 points to Poison Dagger ", "1-20 points to Corpse Explosion ", "1+ points to Lower Resist" };
+            for (int z = 0; z < NovaBuild.Length; z++)
+            {
+                txtBuild.AppendText(NovaBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #region Trapsin
+        private void lblTrapsin_Click(object sender, EventArgs e)
+        {
+            lblFile2.Visible = true;
+            btnCreate2.Visible = true;
+            btnExport2.Visible = true;
+            lblTrapsin.ForeColor = Color.Lime;
+            txtBuild.Visible = true;
+            lblBuild.Visible = true;
+            checkClose.Enabled = false;
+            checkAfar.Enabled = false;
+            checkMagic.Enabled = false;
+            checkPhys.Enabled = false;
+            checkAlone.Enabled = false;
+            checkUnited.Enabled = false;
+            checkYes.Enabled = false;
+            checkNo.Enabled = false;
+            checkClose.Enabled = false;
+            txtBuild.ReadOnly = true;
+            txtBuild.AppendText("End game Trapsin Assassin build according to: https://www.icy-veins.com/d2/lightning-death-sentry-assassin-trapsin-build" + Environment.NewLine);
+            txtBuild.AppendText("" + Environment.NewLine);
+            string[] TrapsinBuild = { "1 point to all prerequisites", "20 points to Death Sentry", "20 points to Lightning Sentry ", "20 points to Charged Bolt Sentry ", "20 points to Shock Web ", "20 points to Fire Blast", "1 point Shadow Master", "1 point Fade", "1 point Mind Blast" };
+            for (int z = 0; z < TrapsinBuild.Length; z++)
+            {
+                txtBuild.AppendText(TrapsinBuild[z] + " " + Environment.NewLine);
+            }
+        }
+        #endregion
+        #endregion
+        //The code below is used for exporting text via file.io
+        #region Print Build Text File
+        private void btnCreate2_Click_1(object sender, EventArgs e)
+        {
+            string path = @"Build.txt";
+            var BuildFile = File.Create(path);
+            BuildFile.Close();
+            MessageBox.Show("File Succesfully Created At: " + path);
+        }
+
+        private void btnExport2_Click_1(object sender, EventArgs e)
+        {
+            string path = @"Build.txt";
+            File.WriteAllText(path, txtBuild.Text);
+            MessageBox.Show("File Succesfully Sent To: " + path);
+        }
+        #endregion
+    }
+}
+
+
